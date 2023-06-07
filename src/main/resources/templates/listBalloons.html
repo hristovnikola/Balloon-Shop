@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>Balloon Order page - Welcome and choose a Balloon</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <style type="text/css">
+        nav{
+            background-color: #e3f2fd;
+        }
+        .form-group{
+            width: 300px;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <nav class="navbar navbar-expand-lg ">
+        <div class="container">
+            <a class="navbar-brand" href="#">Welcome to my balloon shop application</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
++                <div class="d-flex me-3" sec:authorize="isAuthenticated()">
+                    <!--                    Logged in as: <th:block th:text="${session.user.getUsername()}"></th:block>-->
+                    Logged in as: <th:block th:if="${#request.getRemoteUser() != null}"
+                                            th:text="${#request.getRemoteUser()}"></th:block>
+                </div>
+<!--                <div class="d-flex">-->
+<!--                    <a class="btn btn-success" href="/shopping-cart">Cart</a>-->
+<!--                </div>-->
+                <div class="d-flex" sec:authorize="isAuthenticated()">
+                    <a class="btn btn-outline-primary" href="/logout">Logout</a>
+                </div>
+                <div class="d-flex" sec:authorize="!isAuthenticated()">
+                    <a class="btn btn-outline-primary" href="/login">Login</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <div class="container m-auto">
+        <form th:method="GET" th:action="@{/balloons/filter}" id="balloon_filter">
+           <div class="form-group filter">
+               <select class="form-select mt-3" id="balloonType" name="balloonType">
+                   <option th:each="type : ${types}"
+                           th:text="${type}"
+                           th:value="${type}">
+                   </option>
+               </select>
+               <button class="btn btn-primary mt-3" form="balloon_filter">Filter the balloons</button>
+           </div>
+        </form>
+
+        <form th:method="POST" th:action="@{/}" id="balloon_form"></form>
+        <h2>Choose balloon color:</h2>
+        <div th:each="balloon : ${balloons}" class="row mb-3 balloon_selenium">
+            <div class="col-6">
+                <input type="radio" name="balloon" form="balloon_form"  th:value="${balloon.name}">
+                <th:block th:text="${balloon.name}"></th:block>
+                <th:block th:text="${balloon.balloonType}"></th:block>
+            </div>
+            <th:block sec:authorize="hasRole('ROLE_ADMIN')">
+            <div class="col-6">
+                <div class="d-flex">
+                    <form th:method="delete" th:action="@{'/balloons/delete/{id}' (id=${balloon.getId()})}" class="me-2">
+                        <button type="submit" class="btn btn-sm btn-danger delete-balloon-selenium">
+                            <i class="fa fa-trash">Delete</i>
+                        </button>
+                    </form>
+                    <a class="btn btn-sm btn-info me-2 edit-balloon-selenium" th:href="@{'/balloons/edit-form/{id}' (id=${balloon.getId()})}">
+                        <i class="fa fa-trash ">Edit</i>
+                    </a>
+                </div>
+            </div>
+            </th:block>
+        </div>
+        <br/>
+
+        <div class="d-flex">
+            <input type="submit" value="Submit" form="balloon_form" class="btn btn-primary me-2">
+            <th:block sec:authorize="hasRole('ROLE_ADMIN')">
+            <div>
+                <a href="/balloons/add-form" class="btn btn-block btn-dark add-balloon-selenium-btn">Add new balloon</a>
+            </div>
+            </th:block>
+        </div>
+
+    </div>
+</main>
+</body>
+</html>
